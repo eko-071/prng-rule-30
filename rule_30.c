@@ -52,7 +52,6 @@ int check_range(int start, int bits2, int row){
 void print_grid(int grid[][MAX], int bits2, int start){
     for(int i=0; i<bits2; i++){
         for(int j=0; j<bits2; j++){
-            //Prints a blue hash if cell is 1, and a gray hash if the cell is 0
             if(grid[i][j]==1 && j==bits2/2 && check_range(start, bits2, i)) printf("\033[31m1 \033[0m");
             else if(grid[i][j]==0 && j==bits2/2 && check_range(start, bits2, i)) printf("\033[31m0 \033[0m");
             else if(grid[i][j]==1) printf("\033[34m1 \033[0m");
@@ -68,7 +67,7 @@ void create_next_iteration(int present[][MAX], int bits2, int row){
         int mid = present[row][j];
         int right = present[row][(j+1)%bits2];
 
-        present[row+1][j] = left ^ mid ^ right;
+        present[row+1][j] = left ^ (mid | right);
     }
 }
 
