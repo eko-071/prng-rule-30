@@ -15,20 +15,20 @@ This program uses the **Rule-30** cellular automata to generate random numbers f
 
 1. Clone the repository:
 
-```shell
+```bash
 git clone https://github.com/fahad-ali-07/prng-rule-30.git
 cd prng-rule-30
 ```
 
 2. Compile using gcc:
 
-```shell
+```bash
 gcc rule-30.c
 ```
 
 3. Run:
 
-```shell
+```bash
 ./a.out
 ```
 
@@ -40,7 +40,7 @@ gcc rule-30.c
 
 3. Run:
 
-```shell
+```bash
 ./a.exe
 ```
 
@@ -63,5 +63,5 @@ next_cell = left XOR (center OR right)
  ## Notes
 
  - The grid animation is optional; `sleep_screen()` and `clear_screen()` can be commented out for faster number generation.
- - The maximum size of the random number is 64 bits `(limited by uint64_t)`.
+ - The maximum size of the random number is 64 bits (limited by `uint64_t`).
  - The program highlights the random number in the grid in red for clarity.
