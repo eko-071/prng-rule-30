@@ -64,4 +64,4 @@ next_cell = left XOR (center OR right)
 
  - The grid animation is optional; `sleep_screen()` and `clear_screen()` can be commented out for faster number generation.
  - The maximum size of the random number is 64 bits (limited by `uint64_t`).
- - The program highlights the random number in the grid in red for clarity.
+ - The program highlights the selected bits of the random number in the grid in red for clarity.
