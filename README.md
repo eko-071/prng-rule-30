@@ -16,7 +16,7 @@ This program uses the **Rule-30** cellular automata to generate random numbers f
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/fahad-ali-07/prng-rule-30.git
+git clone https://github.com/eko-071/prng-rule-30.git
 cd prng-rule-30
 ```
 
