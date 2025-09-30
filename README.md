@@ -13,7 +13,7 @@ This program uses the **Rule-30** cellular automata to generate random numbers f
 
 ### Linux
 
-1. Clone the repository:
+1. Clone the repository and change current directory to it:
 
 ```bash
 git clone https://github.com/eko-071/prng-rule-30.git
