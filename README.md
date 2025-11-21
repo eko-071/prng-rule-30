@@ -31,6 +31,8 @@ A high-quality pseudo-random number generator based on the Rule 30 cellular auto
 
 ### Building from Source
 
+#### Linux
+
 ```bash
 git clone https://github.com/eko-071/prng-rule-30.git
 cd prng-rule-30
@@ -39,7 +41,19 @@ cmake ..
 make
 ```
 
+#### Windows
+
+```bash
+git clone https://github.com/eko-071/prng-rule-30.git
+cd prng-rule-30
+mkdir build && cd build
+cmake .. -G "MinGW Makefiles"
+mingw32-make
+```
+
 ### Installation
+
+#### Linux
 
 ```bash
 # System-wide installation (requires sudo)
@@ -48,6 +62,12 @@ sudo make install
 # Or install to custom location
 cmake -DCMAKE_INSTALL_PREFIX=$HOME/.local ..
 make install
+```
+
+#### Windows
+
+```bash
+cmake --install . --prefix "C:/MinGW"
 ```
 
 ### Basic Usage
