@@ -16,7 +16,7 @@ void prng30_init(prng30_state *st, uint64_t seed, int width) {
         exit(1);
     }
     
-    // Handle edge case: if seed is 0, use a default non-zero seed
+    // Edge case: if seed is 0 or MAX, use a default non-zero seed
     if (seed == 0 || seed == UINT64_MAX) {
         seed = 0x123456789ABCDEFULL;
     }
@@ -29,6 +29,7 @@ void prng30_init(prng30_state *st, uint64_t seed, int width) {
             st->rows[i] = (seed >> i) & 1;
         } else {
             // For wider grids, use a simple hash function
+            // Overflow here leads to a free modulus operation
             uint64_t hash = seed * 6364136223846793005ULL + (uint64_t)i;
             st->rows[i] = (hash >> 32) & 1;
         }
@@ -48,7 +49,7 @@ void prng30_init(prng30_state *st, uint64_t seed, int width) {
         }
     }
     
-    // Run warmup iterations to ensure good mixing
+    // Warmup iterations to ensure good mixing
     int warmup_rounds = (width > 128) ? 50 : 30;
     for (int warmup = 0; warmup < warmup_rounds; warmup++) {
         prng30_step(st);
@@ -83,7 +84,7 @@ uint64_t prng30_generate(prng30_state *st, int nbits) {
     if (nbits > 64) nbits = 64;
     if (nbits <= 0) return 0;
     
-    uint64_t out = 0;
+    uint64_t out = 0; // The output (obviously)
     int mid = st->size / 2;
     
     for (int i = 0; i < nbits; i++) {

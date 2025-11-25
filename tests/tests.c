@@ -303,8 +303,8 @@ void test_non_zero() {
     double zero_percentage = 100.0 * zero_count / samples;
     printf("Zero values: %d/%d (%.2f%%)\n", zero_count, samples, zero_percentage);
     
-    assert_test("Very few zero values", zero_percentage < 1.0);
     assert_test("Generates non-zero values", zero_count < samples);
+    assert_test("Very few zero values", zero_percentage < 1.0);
     
     prng30_free(&prng);
 }

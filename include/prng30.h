@@ -5,7 +5,7 @@
 
 typedef struct {
     int size;              // width of automaton
-    uint8_t *rows;         // linear memory: size * size matrix
+    uint8_t *rows;         // a size * size matrix stored as linear memory
     int current_row;
 } prng30_state;
 

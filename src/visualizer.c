@@ -75,7 +75,6 @@ void prng30_visualize_animated(prng30_state *st) {
     clear_screen();
     printf("Generation %d/%d (final)\n", n - 1, n - 1);
     
-    // Show all rows
     for (int i = 0; i < n - 1; i++) {
         int actual_row = (start_row + i) % n;
         for (int j = 0; j < n; j++) {
