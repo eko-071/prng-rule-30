@@ -2,28 +2,45 @@
 
 A high-quality pseudo-random number generator based on the Rule 30 cellular automaton. This library provides statistically sound random numbers suitable for simulations, games, procedural generation, and Monte Carlo methods.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![C Standard](https://img.shields.io/badge/C-C99-blue.svg)](https://en.wikipedia.org/wiki/C99)
-
 ## Features
 
-- ✅ **Excellent Statistical Quality** - Passes chi-squared, runs, and autocorrelation tests
-- ✅ **Deterministic** - Same seed produces identical sequences
-- ✅ **Flexible** - Generate 1 to 64 bits per call
-- ✅ **Configurable** - Adjustable automaton size (32-256+ cells)
-- ✅ **Visualization** - Animated display of cellular automaton evolution
-- ✅ **Cross-platform** - Works on Linux, macOS, and Windows
-- ✅ **Well-tested** - Comprehensive test suite included
+- **Excellent Statistical Quality** - Passes chi-squared, runs, and autocorrelation tests
+- **Deterministic** - Same seed produces identical sequences
+- **Flexible** - Generate 1 to 64 bits per call
+- **Configurable** - Adjustable automaton size (32-256+ cells)
+- **Visualization** - Animated display of cellular automaton evolution
+- **Cross-platform** - Works on Linux, macOS, and Windows
+- **Well-tested** - Comprehensive test suite included
+
+## Project Structure
+
+```
+prng-rule-30/
+├── CMakeLists.txt          # Build configuration
+├── LICENSE                 # MIT License
+├── README.md              # This file
+├── cmake/
+│   └── prng30Config.cmake.in  # CMake package config
+├── include/
+│   └── prng30.h           # Public API header
+├── src/
+│   ├── prng.c             # Core PRNG implementation
+│   └── visualizer.c       # Visualization functions
+├── examples/
+│   └── example.c          # Usage examples
+└── tests/
+    └── tests.c            # Comprehensive test suite
+```
 
 ## Statistical Properties
 
 | Test | Result | Quality |
 |------|--------|---------|
-| Chi-Squared (10 bins, 10k samples) | χ² ≈ 7.04 / 16.92 | ⭐⭐⭐⭐⭐ |
-| Bit Distribution (64 bits) | 64/64 within 40-60% | ⭐⭐⭐⭐⭐ |
-| Runs Test | Z-score ≈ 0.06 | ⭐⭐⭐⭐⭐ |
-| Autocorrelation (lag-1) | r ≈ -0.009 | ⭐⭐⭐⭐⭐ |
-| Birthday Spacing | 0 collisions in 500 samples | ⭐⭐⭐⭐⭐ |
+| Chi-Squared (10 bins, 10k samples) | χ² ≈ 7.04 / 16.92 |
+| Bit Distribution (64 bits) | 64/64 within 40-60% |
+| Runs Test | Z-score ≈ 0.06 |
+| Autocorrelation (lag-1) | r ≈ -0.009 |
+| Birthday Spacing | 0 collisions in 500 samples |
 
 **Note:** Not suitable for cryptographic purposes. Use a cryptographically secure PRNG for security applications.
 
@@ -312,26 +329,6 @@ The library enhances basic Rule 30 by:
 - Running warmup iterations to ensure good entropy
 - Supporting variable grid sizes for different applications
 
-## Project Structure
-
-```
-prng-rule-30/
-├── CMakeLists.txt          # Build configuration
-├── LICENSE                 # MIT License
-├── README.md              # This file
-├── cmake/
-│   └── prng30Config.cmake.in  # CMake package config
-├── include/
-│   └── prng30.h           # Public API header
-├── src/
-│   ├── prng.c             # Core PRNG implementation
-│   └── visualizer.c       # Visualization functions
-├── examples/
-│   └── example.c          # Usage examples
-└── tests/
-    └── tests.c            # Comprehensive test suite
-```
-
 ## CMake Options
 
 | Option | Default | Description |
@@ -352,22 +349,6 @@ cmake -DCMAKE_INSTALL_PREFIX=$HOME/.local ..
 # Don't install examples
 cmake -DINSTALL_EXAMPLES=OFF ..
 ```
-
-## Performance Considerations
-
-- **Grid Size**: Larger grids (128-256) provide better statistical quality but use more memory
-- **Bit Width**: Generating more bits per call is more efficient due to warmup overhead
-- **Memory**: Grid size of N requires N² bytes of memory
-- **Speed**: Approximately 1-10 million random numbers per second (depends on grid size and CPU)
-
-## Recommended Grid Sizes
-
-| Grid Size | Memory Usage | Use Case |
-|-----------|--------------|----------|
-| 32 | 1 KB | Lightweight, embedded systems |
-| 64 | 4 KB | General purpose (recommended) |
-| 128 | 16 KB | High-quality randomness |
-| 256 | 64 KB | Maximum quality, research |
 
 ## Limitations
 
