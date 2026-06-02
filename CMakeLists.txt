@@ -1,88 +1,74 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.12)
 project(prng30 VERSION 1.0.0 LANGUAGES C)
 
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
-# Option to build shared or static library
-option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release CACHE STRING "" FORCE)
+endif()
 
-# Create the library
-add_library(prng30
-    src/prng.c
-    src/visualizer.c
-)
+option(BUILD_SHARED_LIBS  "Build shared library instead of static" OFF)
+option(BUILD_EXAMPLES     "Build example program"                  ON)
+option(BUILD_VISUALIZER   "Build animated terminal visualizer"     ON)
+option(ENABLE_SANITIZERS  "Enable ASan + UBSan"                    OFF)
 
-# Set library properties
+if(MSVC)
+    set(WARN_FLAGS /W4 /WX)
+else()
+    set(WARN_FLAGS
+        -Wall -Wextra -Wpedantic
+        -Wstrict-prototypes -Wmissing-prototypes
+        -Wshadow -Wconversion -Wdouble-promotion
+        -fno-strict-aliasing
+    )
+endif()
+
+if(ENABLE_SANITIZERS AND NOT MSVC)
+    set(SAN_FLAGS -fsanitize=address,undefined -fno-omit-frame-pointer)
+endif()
+
+# Library
+add_library(prng30 src/prng.c)
 set_target_properties(prng30 PROPERTIES
-    VERSION ${PROJECT_VERSION}
-    SOVERSION 1
+    VERSION ${PROJECT_VERSION} SOVERSION 1
     PUBLIC_HEADER include/prng30.h
 )
-
-# Include directories
 target_include_directories(prng30 PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
 )
+target_compile_options(prng30 PRIVATE ${WARN_FLAGS} ${SAN_FLAGS})
+target_link_options(prng30 INTERFACE ${SAN_FLAGS})
 
-# Build examples
-add_executable(example examples/example.c)
-target_link_libraries(example prng30)
-
-# Build tests
-add_executable(tests tests/tests.c)
-target_link_libraries(tests prng30 m)
-
-# Install the library
-install(TARGETS prng30
-    EXPORT prng30Targets
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib
-    RUNTIME DESTINATION bin
-    PUBLIC_HEADER DESTINATION include
-)
-
-# Install the export set
-install(EXPORT prng30Targets
-    FILE prng30Targets.cmake
-    NAMESPACE prng30::
-    DESTINATION lib/cmake/prng30
-)
-
-# Create and install package config file
-include(CMakePackageConfigHelpers)
-
-configure_package_config_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/prng30Config.cmake.in
-    ${CMAKE_CURRENT_BINARY_DIR}/prng30Config.cmake
-    INSTALL_DESTINATION lib/cmake/prng30
-)
-
-write_basic_package_version_file(
-    ${CMAKE_CURRENT_BINARY_DIR}/prng30ConfigVersion.cmake
-    VERSION ${PROJECT_VERSION}
-    COMPATIBILITY AnyNewerVersion
-)
-
-install(FILES
-    ${CMAKE_CURRENT_BINARY_DIR}/prng30Config.cmake
-    ${CMAKE_CURRENT_BINARY_DIR}/prng30ConfigVersion.cmake
-    DESTINATION lib/cmake/prng30
-)
-
-# Optionally install examples and tests
-option(INSTALL_EXAMPLES "Install example programs" ON)
-if(INSTALL_EXAMPLES)
-    install(TARGETS example tests DESTINATION bin)
+# Targets
+if(BUILD_EXAMPLES)
+    add_executable(example examples/example.c)
+    target_link_libraries(example PRIVATE prng30)
+    target_compile_options(example PRIVATE ${WARN_FLAGS})
 endif()
 
-# Print build information
-message(STATUS "")
-message(STATUS "PRNG30 Configuration:")
-message(STATUS "  Version: ${PROJECT_VERSION}")
-message(STATUS "  Build type: ${CMAKE_BUILD_TYPE}")
-message(STATUS "  Shared libs: ${BUILD_SHARED_LIBS}")
-message(STATUS "  Install prefix: ${CMAKE_INSTALL_PREFIX}")
-message(STATUS "  Install examples: ${INSTALL_EXAMPLES}")
-message(STATUS "")
+if(BUILD_VISUALIZER)
+    add_executable(prng30_visualizer visualizer/visualizer.c)
+    target_link_libraries(prng30_visualizer PRIVATE prng30)
+    target_compile_options(prng30_visualizer PRIVATE ${WARN_FLAGS})
+endif()
+
+add_executable(tests
+    tests/main.c
+    tests/test_core.c
+    tests/test_statistical.c
+    tests/test_double.c
+)
+target_link_libraries(tests PRIVATE prng30 m)
+target_compile_options(tests PRIVATE ${WARN_FLAGS})
+
+enable_testing()
+add_test(NAME prng30_tests COMMAND tests)
+
+# Install
+install(TARGETS prng30
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+    PUBLIC_HEADER DESTINATION include
+)

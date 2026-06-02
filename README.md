@@ -1,54 +1,15 @@
-# PRNG30 - Rule 30 Cellular Automaton PRNG
+# prng30
 
-A high-quality pseudo-random number generator based on the Rule 30 cellular automaton. This library provides statistically sound random numbers suitable for simulations, games, procedural generation, and Monte Carlo methods.
+A pseudo-random number generator based on Wolfram's Rule 30 elementary
+cellular automaton, implemented as a portable C99 library.
 
-## Features
+> **Not cryptographically secure.** Use a CSPRNG for anything security-sensitive.
 
-- **Excellent Statistical Quality** - Passes chi-squared, runs, and autocorrelation tests
-- **Deterministic** - Same seed produces identical sequences
-- **Flexible** - Generate 1 to 64 bits per call
-- **Configurable** - Adjustable automaton size (32-256+ cells)
-- **Visualization** - Animated display of cellular automaton evolution
-- **Cross-platform** - Works on Linux, macOS, and Windows
-- **Well-tested** - Comprehensive test suite included
+---
 
-## Project Structure
+## Building
 
-```
-prng-rule-30/
-├── CMakeLists.txt          # Build configuration
-├── LICENSE                 # MIT License
-├── README.md              # This file
-├── cmake/
-│   └── prng30Config.cmake.in  # CMake package config
-├── include/
-│   └── prng30.h           # Public API header
-├── src/
-│   ├── prng.c             # Core PRNG implementation
-│   └── visualizer.c       # Visualization functions
-├── examples/
-│   └── example.c          # Usage examples
-└── tests/
-    └── tests.c            # Comprehensive test suite
-```
-
-## Statistical Properties
-
-| Test | Result | Quality |
-|------|--------|---------|
-| Chi-Squared (10 bins, 10k samples) | χ² ≈ 7.04 / 16.92 |
-| Bit Distribution (64 bits) | 64/64 within 40-60% |
-| Runs Test | Z-score ≈ 0.06 |
-| Autocorrelation (lag-1) | r ≈ -0.009 |
-| Birthday Spacing | 0 collisions in 500 samples |
-
-**Note:** Not suitable for cryptographic purposes. Use a cryptographically secure PRNG for security applications.
-
-## Quick Start
-
-### Building from Source
-
-#### Linux
+**Requirements:** CMake >= 3.12, a C99 compiler, GNU make.
 
 ```bash
 git clone https://github.com/eko-071/prng-rule-30.git
@@ -58,236 +19,218 @@ cmake ..
 make
 ```
 
-#### Windows
+This produces three binaries inside `build/`:
+
+| Binary | Description |
+|---|---|
+| `tests` | Test suite |
+| `example` | Usage examples |
+| `prng30_visualizer` | Animated terminal display of the CA |
+
+And one library: `libprng30.a` (static) or `libprng30.so` (shared).
+
+### CMake options
 
 ```bash
-git clone https://github.com/eko-071/prng-rule-30.git
-cd prng-rule-30
-mkdir build && cd build
-cmake .. -G "MinGW Makefiles"
-mingw32-make
+cmake .. -DBUILD_SHARED_LIBS=ON        # build shared library instead of static
+cmake .. -DBUILD_EXAMPLES=OFF          # skip example binary
+cmake .. -DBUILD_VISUALIZER=OFF        # skip visualizer binary
+cmake .. -DENABLE_SANITIZERS=ON        # enable ASan + UBSan (use with Debug)
 ```
 
-### Installation
+---
 
-#### Linux
-
-```bash
-# System-wide installation (requires sudo)
-sudo make install
-
-# Or install to custom location
-cmake -DCMAKE_INSTALL_PREFIX=$HOME/.local ..
-make install
-```
-
-#### Windows
-
-```bash
-cmake --install . --prefix "C:/MinGW"
-```
-
-### Basic Usage
-
-```c
-#include <prng30.h>
-#include <stdio.h>
-
-int main() {
-    // Initialize the PRNG
-    prng30_state prng;
-    prng30_init(&prng, 12345, 64);  // seed=12345, width=64
-    
-    // Generate random numbers
-    uint64_t random32 = prng30_generate(&prng, 32);  // 32-bit number
-    uint64_t random64 = prng30_generate(&prng, 64);  // 64-bit number
-    
-    printf("Random 32-bit: %lu\n", random32);
-    printf("Random 64-bit: %lu\n", random64);
-    
-    // Clean up
-    prng30_free(&prng);
-    return 0;
-}
-```
-
-### Compilation
-
-```bash
-# Method 1: Direct compilation
-gcc myprogram.c -lprng30 -o myprogram
-
-# Method 2: Using CMake
-# In your CMakeLists.txt:
-find_package(prng30 REQUIRED)
-target_link_libraries(myprogram prng30::prng30)
-```
-
-## API Reference
-
-### Initialization and Cleanup
-
-#### `void prng30_init(prng30_state *st, uint64_t seed, int width)`
-Initialize the cellular automaton PRNG.
-
-**Parameters:**
-- `st` - Pointer to the PRNG state structure
-- `seed` - 64-bit seed value (use different seeds for different sequences)
-- `width` - Size of the automaton grid (recommended: 64, 128, or 256)
-
-**Example:**
-```c
-prng30_state prng;
-prng30_init(&prng, 42, 64);
-```
-
-#### `void prng30_free(prng30_state *st)`
-Free memory allocated for the PRNG state.
-
-**Parameters:**
-- `st` - Pointer to the PRNG state structure
-
-**Example:**
-```c
-prng30_free(&prng);
-```
-
-### Random Number Generation
-
-#### `uint64_t prng30_generate(prng30_state *st, int nbits)`
-Generate random bits from the automaton.
-
-**Parameters:**
-- `st` - Pointer to the PRNG state structure
-- `nbits` - Number of random bits to generate (1-64)
-
-**Returns:**
-- `uint64_t` - Random number with `nbits` bits of entropy
-
-**Example:**
-```c
-uint64_t rand8  = prng30_generate(&prng, 8);   // 8-bit random
-uint64_t rand16 = prng30_generate(&prng, 16);  // 16-bit random
-uint64_t rand32 = prng30_generate(&prng, 32);  // 32-bit random
-uint64_t rand64 = prng30_generate(&prng, 64);  // 64-bit random
-```
-
-### Visualization
-
-#### `void prng30_visualize_animated(prng30_state *st)`
-Display an animated visualization of the cellular automaton evolution.
-
-**Parameters:**
-- `st` - Pointer to the PRNG state structure
-
-**Example:**
-```c
-prng30_state prng;
-prng30_init(&prng, 12345, 40);  // Smaller size for better visualization
-prng30_visualize_animated(&prng);
-prng30_free(&prng);
-```
-
-### Utility Functions
-
-#### `void prng30_step(prng30_state *st)`
-Advance the automaton by one generation. This is called internally by `prng30_generate()`.
-
-**Parameters:**
-- `st` - Pointer to the PRNG state structure
-
-## Running Tests
-
-The library includes a comprehensive test suite:
+## Running the tests
 
 ```bash
 cd build
 ./tests
 ```
 
-The test suite validates:
-- Memory management
-- Deterministic behavior
-- Statistical quality (chi-squared, bit distribution, runs test)
-- Autocorrelation
-- Edge cases
-- Multiple grid sizes
+Or through CTest:
 
-## Running Examples
+```bash
+ctest --output-on-failure
+```
+
+Each test prints a pass/fail result with its measured statistic. The suite
+covers correctness (determinism, error codes, edge cases) and statistical
+quality (monobit, chi-squared, runs, autocorrelation, birthday spacing).
+
+---
+
+## Running the visualizer
 
 ```bash
 cd build
-./example
+./prng30_visualizer              # random time-based seed, width=64
+./prng30_visualizer 12345        # fixed seed, width=64
+./prng30_visualizer 12345 40     # fixed seed, width=40
 ```
 
-The example program demonstrates:
-- Basic random number generation
-- Different bit widths
-- Time-based seeds
-- Dice rolling simulation
-- Statistical distribution checks
-- Cellular automaton visualization
+Width must be between 32 and 4096. The centre column (the extraction point)
+is highlighted in red.
 
-## How It Works
+---
 
-PRNG30 is based on Rule 30, a one-dimensional cellular automaton discovered by Stephen Wolfram. Despite its simple rules, it exhibits complex, chaotic behavior that makes it suitable for random number generation.
+## Using the library
 
-### Rule 30 Definition
+### In your own CMake project
 
-For each cell, the next generation is computed from the current cell and its two neighbors:
+Copy `include/prng30.h` and `src/prng.c` directly into your project, or
+build and link against `libprng30`:
 
-```
-Current:  111  110  101  100  011  010  001  000
-Next:      0    0    0    1    1    1    1    0
+```cmake
+target_link_libraries(your_target PRIVATE prng30)
 ```
 
-In binary: `00011110` = 30 (hence "Rule 30")
-
-### Algorithm
-
-1. Initialize a row of cells with bits from the seed
-2. Apply Rule 30 to generate the next row
-3. Extract random bits from the center column
-4. Repeat for as many bits as needed
-
-The library enhances basic Rule 30 by:
-- Using a 2D grid that wraps circularly
-- Extracting bits from multiple columns for better mixing
-- Running warmup iterations to ensure good entropy
-- Supporting variable grid sizes for different applications
-
-## CMake Options
-
-| Option | Default | Description |
-|--------|---------|-------------|
-| `BUILD_SHARED_LIBS` | OFF | Build shared library instead of static |
-| `INSTALL_EXAMPLES` | ON | Install example and test programs |
-| `CMAKE_INSTALL_PREFIX` | /usr/local | Installation directory |
-
-**Examples:**
+### Compiling manually
 
 ```bash
-# Build shared library
-cmake -DBUILD_SHARED_LIBS=ON ..
-
-# Install to custom location
-cmake -DCMAKE_INSTALL_PREFIX=$HOME/.local ..
-
-# Don't install examples
-cmake -DINSTALL_EXAMPLES=OFF ..
+# From the repo root:
+gcc -Iinclude your_program.c src/prng.c -o your_program
 ```
 
-## Limitations
+### Basic usage
 
-- **Not cryptographically secure** - Use for simulations, not security
-- **Fixed period** - Period depends on grid size (typically 2^size generations)
-- **Memory usage** - Requires grid_size² bytes of memory
-- **Deterministic** - Same seed always produces same sequence
+```c
+#include "prng30.h"
+#include <stdio.h>
+
+int main(void) {
+    prng30_state st;
+
+    if (prng30_init(&st, 12345, 64) != PRNG30_OK)
+        return 1;
+
+    // 32-bit integer
+    uint64_t n = prng30_generate(&st, 32);
+
+    // uniform double in [0, 1) 
+    double d = prng30_generate_double(&st);
+
+    prng30_free(&st);
+    return 0;
+}
+```
+
+### Choosing a width
+
+The `width` parameter controls the number of cells in the automaton.
+Wider grids have a longer period and better statistical properties but
+use more memory (2 × width bytes) and take longer to initialise.
+
+| Width | Memory | Notes |
+|---|---|---|
+| 32 | 64 B | minimum; short period |
+| 64 | 128 B | good default for most uses |
+| 128 | 256 B | better quality, still fast |
+| 256+ | 512 B+ | for high-volume generation |
+
+### Error handling
+
+`prng30_init` returns an error code, always check it:
+
+```c
+prng30_err err = prng30_init(&st, seed, width);
+if (err != PRNG30_OK) {
+    // PRNG30_ERR_NULL: st was NULL
+    // PRNG30_ERR_ALLOC: malloc failed
+    // PRNG30_ERR_BADWIDTH: width outside [32, 4096]
+    return 1;
+}
+```
+
+`prng30_free` is always safe to call, even after a failed init.
+
+---
+
+## API reference
+
+```c
+prng30_err prng30_init(prng30_state *st, uint64_t seed, int width);
+```
+Initialise the automaton. All seed values including `0` and `UINT64_MAX`
+are valid. Returns `PRNG30_OK` on success.
+
+```c
+void prng30_free(prng30_state *st);
+```
+Release memory. Safe on a zeroed or already-freed state.
+
+```c
+uint64_t prng30_generate(prng30_state *st, int nbits);
+```
+Generate a random integer using `nbits` bits of output [1..64].
+`nbits` is silently clamped if outside this range.
+
+```c
+double prng30_generate_double(prng30_state *st);
+```
+Generate a uniform double in [0, 1) using 53 bits of entropy.
+
+```c
+void prng30_step(prng30_state *st);
+```
+Advance the automaton by one generation. Called internally by
+`prng30_generate`; exposed for direct CA experiments.
+
+---
+
+## How it works
+
+Rule 30 is an elementary cellular automaton. Each cell's next state is
+determined by its current neighbourhood of three cells:
+
+```
+neighbours:  111  110  101  100  011  010  001  000
+next cell:    0    0    0    1    1    1    1    0
+```
+
+Closed form: `next = left XOR (mid OR right)`. Binary `00011110` = 30.
+
+The automaton is initialised from the seed bits directly (cells 0–63),
+with `splitmix64` for wider grids. It is warmed up for `width/2` steps to
+ensure full diffusion before extraction begins. Each call to
+`prng30_generate` steps the automaton once per output bit, extracting
+three cell positions (centre, centre ± width/8) and XOR-ing them together.
+
+---
+
+## Project structure
+
+```
+prng-rule-30/
+├── include/prng30.h          public API
+├── src/prng.c                core library
+├── visualizer/visualizer.c   terminal visualizer (standalone binary)
+├── examples/example.c        usage examples
+├── tests/
+│   ├── framework.h           test utilities
+│   ├── main.c                test runner
+│   ├── test_core.c           correctness tests
+│   ├── test_statistical.c    statistical quality tests
+│   └── test_double.c         floating-point tests
+├── .clang-format             code style config
+├── CMakeLists.txt
+└── LICENSE
+```
+
+---
+
+## Statistical tests
+
+| Test | Reference |
+|---|---|
+| Monobit frequency | NIST SP 800-22, Test 1 |
+| Chi-squared uniformity | 10 bins, 10 000 samples |
+| Bit distribution | all 64 bit positions ≈ 50% |
+| Runs test | Knuth TAOCP §3.3.2 |
+| Lag-1 autocorrelation | Pearson r |
+| Birthday spacing | 500 × 32-bit samples |
+
+---
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## References
-
-- [Rule 30 on Wikipedia](https://en.wikipedia.org/wiki/Rule_30)
+MIT — see [LICENSE](LICENSE).

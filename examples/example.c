@@ -1,177 +1,127 @@
 #include "../include/prng30.h"
-#include <stdio.h>
+
 #include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <time.h>
 
-// Example 1: Basic random number generation
-void example_basic_generation() {
-    printf("=== Example 1: Basic Random Number Generation ===\n");
-    
-    prng30_state prng;
-    prng30_init(&prng, 12345, 64);
-    
-    printf("Generating 10 random 32-bit numbers:\n");
+static void die(const char *msg, prng30_err err) {
+    fprintf(stderr, "error: %s (code %d)\n", msg, err);
+    exit(1);
+}
+
+static void example_basic(void) {
+    printf("1. Basic 32-bit Generation\n");
+    prng30_state st;
+    if (prng30_init(&st, 12345, 64) != PRNG30_OK)
+        die("prng30_init", -1);
     for (int i = 0; i < 10; i++) {
-        uint64_t random = prng30_generate(&prng, 32);
-        printf("%2d: %10lu (0x%08lX)\n", i + 1, random, random);
+        uint64_t v = prng30_generate(&st, 32);
+        printf("  [%2d]  %10llu  (0x%08llX)\n", i + 1, (unsigned long long)v, (unsigned long long)v);
     }
-    
-    prng30_free(&prng);
+    prng30_free(&st);
     printf("\n");
 }
 
-// Example 2: Different bit widths
-void example_different_bitwidths() {
-    printf("=== Example 2: Generating Different Bit Widths ===\n");
-    
-    prng30_state prng;
-    prng30_init(&prng, 99999, 64);
-    
-    printf("8-bit random:  %3lu (0x%02lX)\n", 
-           prng30_generate(&prng, 8), prng30_generate(&prng, 8));
-    
-    printf("16-bit random: %5lu (0x%04lX)\n", 
-           prng30_generate(&prng, 16), prng30_generate(&prng, 16));
-    
-    printf("32-bit random: %10lu (0x%08lX)\n", 
-           prng30_generate(&prng, 32), prng30_generate(&prng, 32));
-    
-    printf("64-bit random: %20lu (0x%016lX)\n", 
-           prng30_generate(&prng, 64), prng30_generate(&prng, 64));
-    
-    prng30_free(&prng);
+static void example_bitwidths(void) {
+    printf("2. Different Bit Widths\n");
+    prng30_state st;
+    prng30_init(&st, 99999, 64);
+    uint64_t r8  = prng30_generate(&st, 8);
+    uint64_t r16 = prng30_generate(&st, 16);
+    uint64_t r32 = prng30_generate(&st, 32);
+    uint64_t r64 = prng30_generate(&st, 64);
+    printf("   8-bit: %3llu  (0x%02llX)\n", (unsigned long long)r8, (unsigned long long)r8);
+    printf("  16-bit: %5llu  (0x%04llX)\n", (unsigned long long)r16, (unsigned long long)r16);
+    printf("  32-bit: %10llu  (0x%08llX)\n", (unsigned long long)r32, (unsigned long long)r32);
+    printf("  64-bit: %20llu  (0x%016llX)\n", (unsigned long long)r64, (unsigned long long)r64);
+    prng30_free(&st);
     printf("\n");
 }
 
-// Example 3: Using time-based seed
-void example_time_seed() {
-    printf("=== Example 3: Time-Based Seed ===\n");
-    
+static void example_time_seed(void) {
+    printf("3. Time-Based Seed\n");
     uint64_t seed = (uint64_t)time(NULL);
-    printf("Using seed from current time: %lu\n", seed);
-    
-    prng30_state prng;
-    prng30_init(&prng, seed, 64);
-    
-    printf("Random numbers with time seed:\n");
-    for (int i = 0; i < 5; i++) {
-        uint64_t random = prng30_generate(&prng, 32);
-        printf("  %lu\n", random);
-    }
-    
-    prng30_free(&prng);
+    printf("  seed = %llu\n", (unsigned long long)seed);
+    prng30_state st;
+    prng30_init(&st, seed, 64);
+    for (int i = 0; i < 5; i++)
+        printf("  %llu\n", (unsigned long long)prng30_generate(&st, 32));
+    prng30_free(&st);
     printf("\n");
 }
 
-// Example 4: Simulating dice rolls
-void example_dice_rolls() {
-    printf("=== Example 4: Simulating 6-Sided Dice Rolls ===\n");
-    
-    prng30_state prng;
-    uint64_t seed = (uint64_t)time(NULL);  // Use current time as seed
-    prng30_init(&prng, seed, 64);
-    
-    printf("Rolling 20 dice (seed: %lu):\n", seed);
+static void example_dice(void) {
+    printf("4. Six-Sided Dice Rolls (20 rolls)\n");
+    prng30_state st;
+    prng30_init(&st, (uint64_t)time(NULL), 64);
     for (int i = 0; i < 20; i++) {
-        uint64_t random = prng30_generate(&prng, 8);
-        int dice = (random % 6) + 1;  // 1-6
-        printf("%d ", dice);
-        if ((i + 1) % 10 == 0) printf("\n");
+        printf("  %d", (int)(prng30_generate(&st, 8) % 6) + 1);
+        if ((i + 1) % 10 == 0)
+            printf("\n");
     }
-    
-    prng30_free(&prng);
+    prng30_free(&st);
     printf("\n");
 }
 
-// Example 5: Different automaton sizes
-void example_different_sizes() {
-    printf("=== Example 5: Different Automaton Sizes ===\n");
-    
-    uint64_t seed = 777;
-    int sizes[] = {32, 64, 128};
-    
-    for (int i = 0; i < 3; i++) {
-        prng30_state prng;
-        prng30_init(&prng, seed, sizes[i]);
-        
-        printf("Size %3d: ", sizes[i]);
-        for (int j = 0; j < 5; j++) {
-            printf("%10lu ", prng30_generate(&prng, 32));
-        }
-        printf("\n");
-        
-        prng30_free(&prng);
-    }
-    printf("\n");
-}
-
-// Example 6: Visualization demonstration
-void example_visualization() {
-    printf("=== Example 6: Cellular Automaton Visualization ===\n");
-    printf("Press Enter to start animated visualization...\n");
-    getchar();
-    
-    prng30_state prng;
-    prng30_init(&prng, 12345, 40);  // Smaller size for better visualization
-    
-    prng30_visualize_animated(&prng);
-    
-    prng30_free(&prng);
-}
-
-// Example 7: Statistical distribution check
-void example_statistics() {
-    printf("=== Example 7: Basic Statistical Check ===\n");
-    
-    prng30_state prng;
-    prng30_init(&prng, 54321, 64);
-    
-    int bins[10] = {0};
-    int samples = 10000;
-    
-    printf("Generating %d samples and checking distribution...\n", samples);
-    for (int i = 0; i < samples; i++) {
-        uint64_t random = prng30_generate(&prng, 32);
-        int bin = (random % 10);
-        bins[bin]++;
-    }
-    
-    printf("Distribution across 10 bins (expected ~%d per bin):\n", samples / 10);
+static void example_doubles(void) {
+    printf("5. Uniform Doubles in [0, 1)\n");
+    prng30_state st;
+    prng30_init(&st, 0xDEADBEEF, 64);
+    double sum = 0.0;
     for (int i = 0; i < 10; i++) {
-        printf("Bin %d: %4d ", i, bins[i]);
-        // Simple bar chart
-        for (int j = 0; j < bins[i] / 50; j++) printf("█");
-        printf("\n");
+        double d = prng30_generate_double(&st);
+        printf("  %.8f\n", d);
+        sum += d;
     }
-    
-    prng30_free(&prng);
+    printf("  mean = %.4f\n", sum / 10);
+    prng30_free(&st);
     printf("\n");
 }
 
-int main() {
-    printf("╔════════════════════════════════════════════════════╗\n");
-    printf("║     Rule 30 Cellular Automaton PRNG Examples       ║\n");
-    printf("╚════════════════════════════════════════════════════╝\n\n");
-    
-    example_basic_generation();
-    example_different_bitwidths();
-    example_time_seed();
-    example_dice_rolls();
-    example_different_sizes();
-    example_statistics();
-    
-    printf("Would you like to see the visualization? (y/n): ");
-    char response;
-    scanf(" %c", &response);
-    getchar();  // consume newline
-    
-    if (response == 'y' || response == 'Y') {
-        example_visualization();
+static void example_grid_sizes(void) {
+    printf("6. Grid Size Comparison (seed=777)\n");
+    int sizes[] = {32, 64, 128, 256};
+    for (int i = 0; i < 4; i++) {
+        prng30_state st;
+        prng30_init(&st, 777, sizes[i]);
+        printf("  width=%3d: ", sizes[i]);
+        for (int j = 0; j < 5; j++)
+            printf("%10llu ", (unsigned long long)prng30_generate(&st, 32));
+        printf("\n");
+        prng30_free(&st);
     }
-    
-    printf("\n╔════════════════════════════════════════════════════╗\n");
-    printf("║              All examples completed!               ║\n");
-    printf("╚════════════════════════════════════════════════════╝\n");
-    
+    printf("\n");
+}
+
+static void example_histogram(void) {
+    printf("7. Distribution Histogram (10 bins, 10000 samples)\n");
+    prng30_state st;
+    prng30_init(&st, 54321, 64);
+    int bins[10] = {0};
+    for (int i = 0; i < 10000; i++)
+        bins[prng30_generate(&st, 32) % 10]++;
+    for (int i = 0; i < 10; i++) {
+        printf("  [%d] %4d ", i, bins[i]);
+        for (int b = 0; b < bins[i] / 50; b++)
+            printf("|");
+        printf("\n");
+    }
+    prng30_free(&st);
+    printf("\n");
+}
+
+int main(void) {
+    printf("prng30 examples\n\n");
+
+    example_basic();
+    example_bitwidths();
+    example_time_seed();
+    example_dice();
+    example_doubles();
+    example_grid_sizes();
+    example_histogram();
+
+    printf("Run ./prng30_visualizer for the animated CA display.\n");
     return 0;
 }
