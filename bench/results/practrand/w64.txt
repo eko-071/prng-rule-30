@@ -1,0 +1,78 @@
+RNG_test using PractRand version 0.95
+RNG = RNG_stdin, seed = unknown
+test set = core, folding = standard(unknown format)
+
+rng=RNG_stdin, seed=unknown
+length= 2 megabytes (2^21 bytes), time= 2.9 seconds
+  no anomalies in 111 test result(s)
+
+rng=RNG_stdin, seed=unknown
+length= 4 megabytes (2^22 bytes), time= 6.8 seconds
+  no anomalies in 127 test result(s)
+
+rng=RNG_stdin, seed=unknown
+length= 8 megabytes (2^23 bytes), time= 13.6 seconds
+  no anomalies in 139 test result(s)
+
+rng=RNG_stdin, seed=unknown
+length= 16 megabytes (2^24 bytes), time= 26.1 seconds
+  no anomalies in 153 test result(s)
+
+rng=RNG_stdin, seed=unknown
+length= 32 megabytes (2^25 bytes), time= 51.3 seconds
+  no anomalies in 169 test result(s)
+
+rng=RNG_stdin, seed=unknown
+length= 64 megabytes (2^26 bytes), time= 100 seconds
+  no anomalies in 182 test result(s)
+
+rng=RNG_stdin, seed=unknown
+length= 128 megabytes (2^27 bytes), time= 192 seconds
+  no anomalies in 199 test result(s)
+
+rng=RNG_stdin, seed=unknown
+length= 256 megabytes (2^28 bytes), time= 376 seconds
+  no anomalies in 217 test result(s)
+
+ rng=RNG_stdin, seed=unknown
+length= 512 megabytes (2^29 bytes), time= 747 seconds
+  no anomalies in 232 test result(s)
+
+rng=RNG_stdin, seed=unknown
+length= 1 gigabyte (2^30 bytes), time= 1481 seconds
+  no anomalies in 251 test result(s)
+
+rng=RNG_stdin, seed=unknown
+length= 2 gigabytes (2^31 bytes), time= 2933 seconds
+  no anomalies in 269 test result(s)
+
+rng=RNG_stdin, seed=unknown
+length= 4 gigabytes (2^32 bytes), time= 6564 seconds
+  no anomalies in 283 test result(s)
+
+rng=RNG_stdin, seed=unknown
+length= 8 gigabytes (2^33 bytes), time= 13420 seconds
+  no anomalies in 300 test result(s)
+
+rng=RNG_stdin, seed=unknown
+length= 16 gigabytes (2^34 bytes), time= 26503 seconds
+  no anomalies in 315 test result(s)
+
+rng=RNG_stdin, seed=unknown
+length= 32 gigabytes (2^35 bytes), time= 52697 seconds
+  Test Name                         Raw       Processed     Evaluation
+  BCFN(2+0,13-0,T)                  R= +13.5  p =  9.5e-7   very suspicious  
+  BCFN(2+1,13-0,T)                  R= +22.4  p =  1.7e-11    FAIL           
+  BCFN(2+2,13-0,T)                  R= +33.3  p =  2.3e-17    FAIL !         
+  BCFN(2+3,13-0,T)                  R= +11.0  p =  2.0e-5   mildly suspicious
+  BCFN(2+7,13-1,T)                  R= +14.0  p =  5.6e-7   suspicious       
+  BCFN(2+8,13-1,T)                  R= +26.1  p =  1.7e-13    FAIL           
+  BCFN(2+9,13-2,T)                  R= +21.0  p =  2.5e-10   VERY SUSPICIOUS 
+  DC6-9x1Bytes-1                    R= +38.2  p =  1.2e-25    FAIL !!        
+  Gap-16:A                          R=  +6.1  p =  2.2e-4   unusual          
+  Gap-16:B                          R=  +9.3  p =  6.9e-8   very suspicious  
+  [Low1/8]BCFN(2+0,13-0,T)          R= +14.9  p =  1.7e-7   very suspicious  
+  [Low1/8]DC6-9x1Bytes-1            R=  +7.9  p =  3.7e-4   mildly suspicious
+  [Low1/8]Gap-16:A                  R= +20.2  p =  1.9e-13    FAIL           
+  [Low1/8]Gap-16:B                  R= +21.4  p =  2.9e-18    FAIL !         
+  ...and 314 test result(s) without anomalies

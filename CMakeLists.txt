@@ -66,6 +66,19 @@ target_compile_options(tests PRIVATE ${WARN_FLAGS})
 enable_testing()
 add_test(NAME prng30_tests COMMAND tests)
 
+# Benchmarks
+option(BUILD_BENCH "Build benchmark/dump programs" ON)
+
+if(BUILD_BENCH)
+    add_executable(practrand_dump bench/practrand_dump.c)
+    target_link_libraries(practrand_dump PRIVATE prng30)
+    target_compile_options(practrand_dump PRIVATE ${WARN_FLAGS})
+
+    add_executable(nist_dump bench/nist_dump.c)
+    target_link_libraries(nist_dump PRIVATE prng30)
+    target_compile_options(nist_dump PRIVATE ${WARN_FLAGS})
+endif()
+
 # Install
 install(TARGETS prng30
     LIBRARY DESTINATION lib
