@@ -6,18 +6,16 @@
 #include <string.h>
 #include <time.h>
 
-/*
- * Usage:
- *   ./practrand_dump [width] | RNG_test stdin
- *   ./practrand_dump [width] | RNG_test stdin32
- *
- * width defaults to 64. Writes 64-bit values as raw bytes to stdout.
- * Pipe directly into PractRand; it will stop reading when it decides.
- *
- * Example:
- *   ./practrand_dump 64  | RNG_test stdin -tlmax 1TB
- *   ./practrand_dump 128 | RNG_test stdin -tlmax 1TB
- */
+//  Usage:
+//    ./practrand_dump [width] | RNG_test stdin
+//    ./practrand_dump [width] | RNG_test stdin32
+
+//  width defaults to 64. Writes 64-bit values as raw bytes to stdout.
+//  Pipe directly into PractRand; it will stop reading when it decides.
+
+//  Example:
+//    ./practrand_dump 64  | RNG_test stdin -tlmax 1TB
+//    ./practrand_dump 128 | RNG_test stdin -tlmax 1TB
 
 int main(int argc, char *argv[]) {
     int width = 64;

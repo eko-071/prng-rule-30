@@ -11,6 +11,7 @@ endif()
 option(BUILD_SHARED_LIBS  "Build shared library instead of static" OFF)
 option(BUILD_EXAMPLES     "Build example program"                  ON)
 option(BUILD_VISUALIZER   "Build animated terminal visualizer"     ON)
+option(BUILD_BENCH        "Build benchmark/dump programs"          ON)
 option(ENABLE_SANITIZERS  "Enable ASan + UBSan"                    OFF)
 
 if(MSVC)
@@ -28,7 +29,6 @@ if(ENABLE_SANITIZERS AND NOT MSVC)
     set(SAN_FLAGS -fsanitize=address,undefined -fno-omit-frame-pointer)
 endif()
 
-# Library
 add_library(prng30 src/prng.c)
 set_target_properties(prng30 PROPERTIES
     VERSION ${PROJECT_VERSION} SOVERSION 1
@@ -41,7 +41,6 @@ target_include_directories(prng30 PUBLIC
 target_compile_options(prng30 PRIVATE ${WARN_FLAGS} ${SAN_FLAGS})
 target_link_options(prng30 INTERFACE ${SAN_FLAGS})
 
-# Targets
 if(BUILD_EXAMPLES)
     add_executable(example examples/example.c)
     target_link_libraries(example PRIVATE prng30)
@@ -66,9 +65,6 @@ target_compile_options(tests PRIVATE ${WARN_FLAGS})
 enable_testing()
 add_test(NAME prng30_tests COMMAND tests)
 
-# Benchmarks
-option(BUILD_BENCH "Build benchmark/dump programs" ON)
-
 if(BUILD_BENCH)
     add_executable(practrand_dump bench/practrand_dump.c)
     target_link_libraries(practrand_dump PRIVATE prng30)
@@ -77,9 +73,20 @@ if(BUILD_BENCH)
     add_executable(nist_dump bench/nist_dump.c)
     target_link_libraries(nist_dump PRIVATE prng30)
     target_compile_options(nist_dump PRIVATE ${WARN_FLAGS})
+
+    find_library(TESTU01_LIB  testu01)
+    find_library(PROBDIST_LIB probdist)
+    find_library(MYLIB_LIB    mylib)
+
+    if(TESTU01_LIB AND PROBDIST_LIB AND MYLIB_LIB)
+        add_executable(testu01_harness bench/testu01_harness.c)
+        target_include_directories(testu01_harness PRIVATE /usr/include/testu01)
+        target_link_libraries(testu01_harness PRIVATE prng30
+            ${TESTU01_LIB} ${PROBDIST_LIB} ${MYLIB_LIB} m)
+        target_compile_options(testu01_harness PRIVATE ${WARN_FLAGS})
+    endif()
 endif()
 
-# Install
 install(TARGETS prng30
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
